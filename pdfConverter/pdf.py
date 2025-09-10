@@ -28,20 +28,25 @@ def combinepdfs(filelist):
         merge.append(fi)
     merge.write("merge.pdf")
 
+def watermark_pdfs(filelist):
+    r2 = PyPDF2.PdfFileReader(open('wtr.pdf', 'rb'))
+    r4 = PyPDF2.PdfFileReader(open('merge.pdf', 'rb'))
+    w2 = PyPDF2.PdfFileWriter()
+
+    water_mark_page = r2.getPage(0)
 
 
+    for i in range(r4.getNumPages()):
+        page = r4.getPage(i)
+        page.mergePage(water_mark_page)
+        w2.addPage(page)
 
-
-
-
-
-
-
-
-
+        with open('watermark.pdf', 'wb') as new_file:
+            w2.write(new_file)
 # take all the files and put them in list
 
 #combine them and print to current directory
 
 
 combinepdfs(['dummy.pdf','twopage.pdf', 'wtr.pdf'])
+watermark_pdfs(['merge.pdf'])
