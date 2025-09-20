@@ -9,8 +9,8 @@ pygame.display.set_caption('Sound Effects')
 #creating sound effects
 
 #define sounds
-sound1_hit = pygame.mixer.Sound('sound1Hit.wav')
-sound2_zap = pygame.mixer.Sound('sound1Zap.wav')
+sound1_hit = pygame.mixer.Sound('../assets/sound1Hit.wav')
+sound2_zap = pygame.mixer.Sound('../assets/sound1Zap.wav')
 
 #play sounds effects
 sound1_hit.play()
@@ -22,7 +22,7 @@ pygame.time.delay(2000)
 sound2_zap.set_volume(.1)
 
 #load background music
-pygame.mixer.music.load('pixel.ai_ytk1ytazndqtytbkzi00nzq1lwjlogqtymrjnddmzwe2y2e1')
+pygame.mixer.music.load('../assets/pixel.ai_ytk1ytazndqtytbkzi00nzq1lwjlogqtymrjnddmzwe2y2e1')
 
 #play and stop music
 pygame.mixer.music.play(-1, 0.0)

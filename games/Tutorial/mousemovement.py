@@ -16,7 +16,7 @@ clock = pygame.time.Clock()
 WHITE = (255, 255, 255)
 display_screen.fill(WHITE)
 
-dragon_image = pygame.image.load('Dragon.64.png')
+dragon_image = pygame.image.load('../assets/Dragon.64.png')
 dragon_image_rect = dragon_image.get_rect()
 dragon_image_rect.topleft = (25,25)
 

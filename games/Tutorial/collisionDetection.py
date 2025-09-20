@@ -11,11 +11,11 @@ pygame.display.set_caption("Collision Detection")
 WHITE = (255, 255, 255)
 surface_display.fill(WHITE)
 
-dragon_image = pygame.image.load('Dragon.64.png')
+dragon_image = pygame.image.load('../assets/Dragon.64.png')
 dragon_image_rect = dragon_image.get_rect()
 dragon_image_rect.topleft = (25,25)
 
-coin_image = pygame.image.load('Coin.png')
+coin_image = pygame.image.load('../assets/Coin.png')
 coin_image_rect = coin_image.get_rect()
 coin_image_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
 

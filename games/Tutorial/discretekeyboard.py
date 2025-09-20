@@ -19,7 +19,7 @@ WHITE = (255,255,255)
 display_surface.fill(WHITE)
 
 #load in images
-dragon_image = pygame.image.load('Dragon.64.png')
+dragon_image = pygame.image.load('../assets/Dragon.64.png')
 dragon_image_rect = dragon_image.get_rect()
 dragon_image_rect.centerx = WINDOW_WIDTH // 2
 dragon_image_rect.bottom = WINDOW_HEIGHT

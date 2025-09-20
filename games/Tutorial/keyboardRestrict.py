@@ -13,7 +13,7 @@ pygame.display.set_caption('Mouse Movement Restrict')
 WHITE = (255, 255, 255)
 display_surface.fill(WHITE)
 
-dragon_image = pygame.image.load('Dragon.64.png')
+dragon_image = pygame.image.load('../assets/Dragon.64.png')
 dragon_image_rect = dragon_image.get_rect()
 dragon_image_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
 

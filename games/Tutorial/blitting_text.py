@@ -24,7 +24,7 @@ display_surface.fill(WHITE)
 
 #load fonts
 system_font = pygame.font.SysFont("monospace", 65)
-custom_font = pygame.font.Font("DripOctober-vm0JA.ttf", 50)
+custom_font = pygame.font.Font("../assets/DripOctober-vm0JA.ttf", 50)
 
 #Define Text
 system_text = system_font.render("Legacy", True, BLACK)

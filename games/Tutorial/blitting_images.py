@@ -12,13 +12,13 @@ WHITE = (255, 255, 255)
 #create images
 #we can get the rect of the surafce and use the rect to psotion the images
 
-dragon_image_left = pygame.image.load('Dragon.64.png')
+dragon_image_left = pygame.image.load('../assets/Dragon.64.png')
 dragon_image_left_rect = dragon_image_left.get_rect()
 dragon_image_left_rect.topleft = (0,0)
 
 
 
-dragon_image_right = pygame.image.load('Dragon.64.png')
+dragon_image_right = pygame.image.load('../assets/Dragon.64.png')
 dragon_image_right_rect = dragon_image_right.get_rect()
 dragon_image_right_rect.topright = (WINDOW_WIDTH,0)
 

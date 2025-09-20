@@ -17,7 +17,7 @@ surface_display.fill(WHITE)
 
 VELOCITY = 5
 
-dragon_image = pygame.image.load('Dragon.64.png')
+dragon_image = pygame.image.load('../assets/Dragon.64.png')
 dragon_image_rect = dragon_image.get_rect()
 dragon_image_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
 
