@@ -18,6 +18,8 @@ FPS = 60
 #set game values
 PLAYER_STARTING_LIVES = 5
 PLAYER_VELOCITY = 5
+PLAYER_VELOCITY_MINI = 9
+
 COIN_STARTING_VELOCITY = 5
 
 COIN_ACCELERATION = .5
@@ -29,7 +31,7 @@ coin_velocity = COIN_STARTING_VELOCITY
 
 #events
 SPAWN_HAPPY_MEAL = pygame.USEREVENT + 1
-pygame.time.set_timer(SPAWN_HAPPY_MEAL,20000)
+pygame.time.set_timer(SPAWN_HAPPY_MEAL,30000)
 should_blit_spider = False
 
 
@@ -117,15 +119,24 @@ cheese_image_rect.y = 0 + BUFFER_DISTANCE
 cheese_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
 coin_sound.play()
 
+mini_burger_image = pygame.image.load('../assets/MiniBurger.32.png')
+mini_burger_rect = mini_burger_image.get_rect()
+mini_burger_rect.y = 600
+mini_burger_rect.x = WINDOW_WIDTH //2
+coin_sound.play()
+
 random_velocity = random.randint(1, 7)
 random_velocity2 = random.randint(1, 7)
 random_velocity3 = random.randint(1, 7)
 
 
 #image updates
+show_regular_burger = True
+show_mini_burger = False
 start_time = pygame.time.get_ticks()
 count = 0
 event_end_time = 0
+event_end_time_2 = 0
 running = True
 while running:
 
@@ -136,14 +147,12 @@ while running:
              running = False
          elif event.type == SPAWN_HAPPY_MEAL:
 
-             print('here')
              should_blit_spider = True
              event_end_time = pygame.time.get_ticks() + 5000
              print(event_end_time)
 
 
      surface_display.fill(WHITE)
-     surface_display.blit(burger_image, burger_image_rect)
      #BLIT the HUD
      surface_display.blit(score_text, score_text_rect)
      surface_display.blit(title_text, title_text_rect)
@@ -152,10 +161,30 @@ while running:
      #BLIT assests to screen
      surface_display.blit(bug_image, bug_rect)
      surface_display.blit(ketchup_image, ketchup_image_rect)
-     surface_display.blit(burger_image, burger_image_rect)
+     if show_regular_burger:
+        event_end_time_2 = pygame.time.get_ticks() + 10000
+
+        surface_display.blit(burger_image, burger_image_rect)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and burger_image_rect.left > 0:
+            burger_image_rect.x -= PLAYER_VELOCITY
+
+        if keys[pygame.K_RIGHT] and burger_image_rect.right < WINDOW_WIDTH:
+            burger_image_rect.x += PLAYER_VELOCITY
+
+     if show_mini_burger:
+         print('!!!!!!!!!!!!!!! in mini burger section')
+
+         show_regular_burger = False
+         surface_display.blit(mini_burger_image,mini_burger_rect)
+         keys = pygame.key.get_pressed()
+         if keys[pygame.K_LEFT] and mini_burger_rect.left > 0:
+             mini_burger_rect.x -= PLAYER_VELOCITY_MINI
+
+         if keys[pygame.K_RIGHT] and mini_burger_rect.right < WINDOW_WIDTH:
+             mini_burger_rect.x += PLAYER_VELOCITY_MINI
 
      if should_blit_spider and pygame.time.get_ticks() < event_end_time:
-         print(f'ENDVTIMME: {event_end_time} | Ticks {pygame.time.get_ticks()}')
          surface_display.blit(spider_image, spider_rect)
          pygame.display.flip()
 
@@ -168,17 +197,7 @@ while running:
              # move the conin
              spider_rect.y += random_velocity3
      elif should_blit_spider and pygame.time.get_ticks() >= event_end_time:
-
         should_blit_spider = False
-     #check to see if the user wants to move
-     keys = pygame.key.get_pressed()
-     if keys[pygame.K_LEFT] and burger_image_rect.left > 0:
-         burger_image_rect.x -= PLAYER_VELOCITY
-
-     if keys[pygame.K_RIGHT] and burger_image_rect.right < WINDOW_WIDTH:
-         burger_image_rect.x += PLAYER_VELOCITY
-
-
 
         # move the coin
      if ketchup_image_rect.y > WINDOW_HEIGHT:
@@ -188,7 +207,6 @@ while running:
 
      else:
         ketchup_image_rect.y += random_velocity
-        print(random_velocity)
 
     #move the coin
      if bug_rect.y > WINDOW_HEIGHT:
@@ -214,6 +232,20 @@ while running:
         ketchup_image_rect.y = 0 - BUFFER_DISTANCE
         ketchup_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
         random_velocity = random.randint(1,10)
+
+     if burger_image_rect.colliderect(spider_rect):
+        score += 1
+        coin_sound.play()
+        spider_rect.y = 0 - BUFFER_DISTANCE
+        spider_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+        random_velocity = random.randint(1,10)
+        show_mini_burger = True
+
+     if show_mini_burger and pygame.time.get_ticks() >= event_end_time_2:
+        show_mini_burger = False
+        show_regular_burger = True
+
+
 
 
 
@@ -298,15 +330,6 @@ while running:
 
 pygame.quit()
 
-# notes: images will drop incredients  bun, cheegit status
-# se, meat, lettuci tomatoes ,speacial , ketchup, mustartd special sauce
-# this will also drop garbage as a ostacles randomly for you to avoid
-# the user image wll trans for depending on the level of ingrdients collison
-# level one : bun meat, cheese
-#leve two :lettuce , tomates , ketchup mustarfd
-# level 3 : special sauce
-# then give win screen
-
-# Specials : Kids meal which minimizes burge r to make it more flexible with collidiing iwth preferrd ingreadaint and easy avoaiding trash
-# wrap normal burger into boolean to show and then set to true when starting
-# make sepate repo | public | NO images
+# notes: images will drop incredients: (1)Ketchup, (2)Cheese, (3)Lettuce
+# Obstacles: will be garbage to that you need to avoid of a point will be dedcuted from your life
+# Specials: Kids Meal ! -> mini burge will replace regular sized burger and will move faster and smaller to avoid gargbage
