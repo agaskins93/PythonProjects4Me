@@ -1,6 +1,7 @@
 import pygame
 import random
 
+from anyio import current_time
 
 pygame.init()
 
@@ -18,6 +19,7 @@ FPS = 60
 PLAYER_STARTING_LIVES = 5
 PLAYER_VELOCITY = 5
 COIN_STARTING_VELOCITY = 5
+
 COIN_ACCELERATION = .5
 BUFFER_DISTANCE = 100
 
@@ -25,11 +27,20 @@ score = 0
 player_lives = PLAYER_STARTING_LIVES
 coin_velocity = COIN_STARTING_VELOCITY
 
+#events
+SPAWN_HAPPY_MEAL = pygame.USEREVENT + 1
+pygame.time.set_timer(SPAWN_HAPPY_MEAL,20000)
+should_blit_spider = False
+
+
+CUSTOM_EVENT_DURATION = 20000
 
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 LIGHT_BLUE = (127, 127, 127)
+
+
 
 #set fonts
 font = pygame.font.Font('../basic_tutorial_assets/basic_tutorial_assets/AttackGraffiti.ttf', 18)
@@ -65,66 +76,151 @@ miss_sound.set_volume(.1)
 
 #setimages
 
-dragon_image = pygame.image.load('../assets/Dragon.64.png')
-dragon_image_rect = dragon_image.get_rect()
-dragon_image_rect.bottom = 675
-dragon_image_rect.centerx = WINDOW_WIDTH //2
+burger_image = pygame.image.load('../CatchTheDragon/images/Plain-Burger.64.png')
+burger_image_rect = burger_image.get_rect()
+burger_image_rect.bottom = 675
+burger_image_rect.centerx = WINDOW_WIDTH //2
 
-coin_image = pygame.image.load('../assets/Coin.png')
-coin_image_rect = coin_image.get_rect()
-coin_image_rect.y = 0 + BUFFER_DISTANCE
-coin_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+trash_image = pygame.image.load('../assets/Trash.64.png')
+trash_rect = trash_image.get_rect()
+trash_rect.y = 0 + BUFFER_DISTANCE
+trash_rect.x = random.randint(0, WINDOW_WIDTH - 32)
 coin_sound.play()
 
+rat_image = pygame.image.load('../assets/rat.64.png')
+rat_rect = rat_image.get_rect()
+rat_rect.y = 0 + BUFFER_DISTANCE
+rat_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+coin_sound.play()
+
+bug_image = pygame.image.load('../assets/Bug-Flat.64.png')
+bug_rect = bug_image.get_rect()
+bug_rect.y = 0 + BUFFER_DISTANCE
+bug_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+coin_sound.play()
+
+spider_image = pygame.image.load('../assets/spider.64.png')
+spider_rect = spider_image.get_rect()
+spider_rect.y = 0 + BUFFER_DISTANCE
+spider_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+coin_sound.play()
+
+ketchup_image = pygame.image.load('../CatchTheDragon/images/Ketchup.64.png')
+ketchup_image_rect = ketchup_image.get_rect()
+ketchup_image_rect.y = 0 + BUFFER_DISTANCE
+ketchup_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+coin_sound.play()
+
+cheese_image = pygame.image.load('../CatchTheDragon/images/Cheese.64.png')
+cheese_image_rect = cheese_image.get_rect()
+cheese_image_rect.y = 0 + BUFFER_DISTANCE
+cheese_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+coin_sound.play()
+
+random_velocity = random.randint(1, 7)
+random_velocity2 = random.randint(1, 7)
+random_velocity3 = random.randint(1, 7)
 
 
-
-
+#image updates
+start_time = pygame.time.get_ticks()
+count = 0
+event_end_time = 0
 running = True
 while running:
+
+
      for event in pygame.event.get():
+
          if event.type == pygame.QUIT:
              running = False
+         elif event.type == SPAWN_HAPPY_MEAL:
+
+             print('here')
+             should_blit_spider = True
+             event_end_time = pygame.time.get_ticks() + 5000
+             print(event_end_time)
+
+
      surface_display.fill(WHITE)
-     surface_display.blit(dragon_image, dragon_image_rect)
+     surface_display.blit(burger_image, burger_image_rect)
      #BLIT the HUD
      surface_display.blit(score_text, score_text_rect)
      surface_display.blit(title_text, title_text_rect)
      surface_display.blit(lives_text, lives_text_rect)
      pygame.draw.line(surface_display, BLACK, (0,64), (WINDOW_WIDTH, 64), 2)
-
      #BLIT assests to screen
-     surface_display.blit(coin_image, coin_image_rect)
-     surface_display.blit(dragon_image, dragon_image_rect)
+     surface_display.blit(bug_image, bug_rect)
+     surface_display.blit(ketchup_image, ketchup_image_rect)
+     surface_display.blit(burger_image, burger_image_rect)
 
+     if should_blit_spider and pygame.time.get_ticks() < event_end_time:
+         print(f'ENDVTIMME: {event_end_time} | Ticks {pygame.time.get_ticks()}')
+         surface_display.blit(spider_image, spider_rect)
+         pygame.display.flip()
+
+         if spider_rect.y > WINDOW_HEIGHT:
+             miss_sound.play()
+             spider_rect.y = 0 - BUFFER_DISTANCE
+             spider_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+             count += 1
+         else:
+             # move the conin
+             spider_rect.y += random_velocity3
+     elif should_blit_spider and pygame.time.get_ticks() >= event_end_time:
+
+        should_blit_spider = False
      #check to see if the user wants to move
      keys = pygame.key.get_pressed()
-     if keys[pygame.K_LEFT] and dragon_image_rect.left > 0:
-         dragon_image_rect.x -= PLAYER_VELOCITY
+     if keys[pygame.K_LEFT] and burger_image_rect.left > 0:
+         burger_image_rect.x -= PLAYER_VELOCITY
 
-     if keys[pygame.K_RIGHT] and dragon_image_rect.right < WINDOW_WIDTH:
-         dragon_image_rect.x += PLAYER_VELOCITY
+     if keys[pygame.K_RIGHT] and burger_image_rect.right < WINDOW_WIDTH:
+         burger_image_rect.x += PLAYER_VELOCITY
+
+
+
+        # move the coin
+     if ketchup_image_rect.y > WINDOW_HEIGHT:
+        ketchup_image_rect.y = 0 - BUFFER_DISTANCE
+        ketchup_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+        random_velocity = random.randint(1,10)
+
+     else:
+        ketchup_image_rect.y += random_velocity
+        print(random_velocity)
 
     #move the coin
-     if coin_image_rect.y > WINDOW_HEIGHT :
-         #playyer missed coin
-         player_lives -= 1
+     if bug_rect.y > WINDOW_HEIGHT:
          miss_sound.play()
-         coin_image_rect.y = 0 - BUFFER_DISTANCE
-         coin_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+         bug_rect.y = 0 - BUFFER_DISTANCE
+         bug_rect.x = random.randint(0, WINDOW_WIDTH - 32)
      else:
-        #move the conin
-        coin_image_rect.y += coin_velocity
+        bug_rect.y += coin_velocity
 
      #check for collisons
-     if dragon_image_rect.colliderect(coin_image_rect):
-         score += 1
-         coin_sound.play()
-         coin_velocity += COIN_ACCELERATION
-         coin_image_rect.y = 0 - BUFFER_DISTANCE
-         coin_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+     # Damage Collisions
+     if burger_image_rect.colliderect(bug_rect):
+        score -= 1
+        player_lives -= 1
+        coin_sound.play()
+        bug_rect.y = 0 - BUFFER_DISTANCE
+        bug_rect.x = random.randint(0, WINDOW_WIDTH - 32)
 
-         #Accelearion Tactics - determine the rate increase of the coin based on the missed
+    #helpful collisons
+     if burger_image_rect.colliderect(ketchup_image_rect):
+        score += 1
+        coin_sound.play()
+        ketchup_image_rect.y = 0 - BUFFER_DISTANCE
+        ketchup_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+        random_velocity = random.randint(1,10)
+
+
+
+
+
+         #Accelearion Tactics - determine the rate incre
+         # ase of the coin based on the missed
          # 5
          # 5.5 -> 5
          # 6
@@ -134,12 +230,34 @@ while running:
      score_text = font.render("Score: " + str(score), True, BLACK)
      lives_text = font.render("Lives: " + str(player_lives), True, BLACK)
 
+     # LEVEL_2
+     if score >= 10:
+         surface_display.blit(cheese_image, cheese_image_rect)
+
+         if cheese_image_rect.y > WINDOW_HEIGHT:
+             miss_sound.play()
+             cheese_image_rect.y = 0 - BUFFER_DISTANCE
+             cheese_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+             random_velocity2 = random.randint(1, 5)
+         else:
+             # move the conin
+              cheese_image_rect.y += random_velocity2
+             # print('here')
+
+        # helpful collisons
+         if burger_image_rect.colliderect(cheese_image_rect):
+             score += 2
+             coin_sound.play()
+             cheese_image_rect.y = 0 - BUFFER_DISTANCE
+             cheese_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+             random_velocity = random.randint(1, 10)
+
      if player_lives == 0:
         surface_display.blit(game_over_text, game_over_text_rect)
         surface_display.blit(continue_text, continue_text_rect)
         pygame.display.update()
 
-         #pause the game until player presses a key , then reset the game
+        #pause the game until player presses a key , then reset the game
         pygame.mixer.music.stop()
         is_paused = True
         while is_paused:
@@ -148,8 +266,9 @@ while running:
                 if event.type == pygame.KEYDOWN:
                     score=0
                     player_lives = PLAYER_STARTING_LIVES
-                    dragon_image_rect.x = WINDOW_WIDTH//2
+                    burger_image_rect.x = WINDOW_WIDTH//2
                     coin_velocity = COIN_STARTING_VELOCITY
+
                     #pygame.mixer.music.play(-1,0.0) #infintie loop
                     is_paused = False
                     #player want to quit
@@ -158,18 +277,36 @@ while running:
                     running = False
 
 
+        print(f' BLITTING SPIDER {pygame.time.get_ticks()} | Event env time : {event_end_time} ')
+
+
+
+         # helpful collisons
+         # if burger_image_rect.colliderect(cheese_image_rect):
+         #     score += 2
+         #     coin_sound.play()
+         #     cheese_image_rect.y = 0 - BUFFER_DISTANCE
+         #     cheese_image_rect.x = random.randint(0, WINDOW_WIDTH - 32)
+         #     random_velocity = random.randint(1, 10)
 
 
 
 
-
-
-
-
-
-
-     pygame.display.update()
+     pygame.display.flip()
      clock.tick(FPS)
 
 
 pygame.quit()
+
+# notes: images will drop incredients  bun, cheegit status
+# se, meat, lettuci tomatoes ,speacial , ketchup, mustartd special sauce
+# this will also drop garbage as a ostacles randomly for you to avoid
+# the user image wll trans for depending on the level of ingrdients collison
+# level one : bun meat, cheese
+#leve two :lettuce , tomates , ketchup mustarfd
+# level 3 : special sauce
+# then give win screen
+
+# Specials : Kids meal which minimizes burge r to make it more flexible with collidiing iwth preferrd ingreadaint and easy avoaiding trash
+# wrap normal burger into boolean to show and then set to true when starting
+# make sepate repo | public | NO images
