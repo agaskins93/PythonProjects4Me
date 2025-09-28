@@ -2,6 +2,7 @@ import random
 
 import pygame
 
+
 pygame.init()
 
 WINDOW_WIDTH = 945
@@ -72,12 +73,57 @@ mos_rect.center = ((WINDOW_WIDTH//2, WINDOW_HEIGHT//2))
 
 
 
-
+#pygame.mixer.music.play(-1,0.0)
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x = event.pos[0]
+            mouse_y= event.pos[1]
+
+        #here the clown was clicked
+            if mos_rect.collidepoint(mouse_x,mouse_y):
+                score += 1
+                mosquito_velocity += MOSQUITO_ACCELERATION
+
+                #move clown in new direction
+                mos_dx = random.choice([-1,1])
+                mos_dy = random.choice([-1,1])
+
+                # if mos_dx == -1 or mos_dy == -1:
+                #     mos_d,mos_dy = 1,1
+                # if mos_dx == 1 or mos_dy == 1:
+                #     mos_dx,mos_dy = -1,-1
+                prev_dx = mos_dx
+                prev_dy = mos_dy
+                while(prev_dx == mos_dx and prev_dy == mos_dy):
+                    mos_dx = random.choice([-1,1])
+                    mos_dx = random.choice([-1,1])
+            else:
+                player_lives -= 1
+
+
+
+
+
+
+
+
+    #move the clown
+    mos_rect.x += mos_dx*mosquito_velocity
+    mos_rect.y += mos_dy*mosquito_velocity
+
+    #bounce clown
+    if mos_rect.left <= 0 or mos_rect.right >= WINDOW_WIDTH:
+        mos_dx = -1*mos_dx
+    if mos_rect.top <= 0 or mos_rect.bottom >= WINDOW_HEIGHT:
+        mos_dy = -1*mos_dy
+
+    #update HUD
+    score_text = font.render("Score: " + str(score), True, BLACK)
+    lives_text = font.render("Lives: " + str(player_lives), True, BLACK)
 
     # Display Background
     surface_display.fill(WHITE)
