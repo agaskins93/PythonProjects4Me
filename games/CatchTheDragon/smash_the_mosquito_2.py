@@ -1,7 +1,7 @@
 import random
 
 import pygame
-
+from pygame import MOUSEMOTION
 
 pygame.init()
 
@@ -12,12 +12,21 @@ pygame.display.set_caption('Smash the Mosquito')
 
 FPS = 60
 clock = pygame.time.Clock()
+BUFFER_DISTANCE = 100
 
 PLAYER_STARTING_LIVES = 5
 MOSQUITO_STARTING_VELOCITY = 3
 MOSQUITO_ACCELERATION = .5
 mos_dx = random.choice([-1,1])
 mos_dy = random.choice([-1,1])
+
+#events
+MOSQUITO_BITE_MODE = pygame.USEREVENT + 1
+pygame.time.set_timer(MOSQUITO_BITE_MODE,30000)
+mosquito_bite_mode = False
+normal_mode = True
+start_time = pygame.time.get_ticks()
+event_end_time = 0
 
 
 
@@ -82,21 +91,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.MOUSEMOTION:
-            mouse_motion_x = event.pos[0]
-            mouse_motion_y = event.pos[1]
-            print(f'mmx: {mouse_motion_x}')
-            print(f'mmy: {mouse_motion_y}')
-            # move clown in new direction
-            print(f' newX : {mouse_motion_x - mos_rect.x}')
-            print(f' newY : {mouse_motion_y - mos_rect.y}')
-
-
-
-
-
-            if mouse_motion_x == mos_rect.x and mouse_motion_y == mos_rect.y  :
-                player_lives-1
 
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -126,46 +120,53 @@ while running:
                 player_lives -= 1
 
 
-    # #move the clown
-    # mos_rect.x += mos_dx*mosquito_velocity
-    # mos_rect.y += mos_dy*mosquito_velocity
+
+
 
     #able to get the score decresing wwhen the mosuquito tries to bite you
 
-    if mouse_motion_x - mos_rect.x == 0 and  mouse_motion_y - mos_rect.y == 0:
-        score -= 1
-
-    pygame.time.delay(500)
-
-
-    if mos_rect.x > mouse_motion_x:
-        for x in range(abs(mouse_motion_x - mos_rect.x)):
-            mos_rect.x -= 1
-    if mos_rect.x < mouse_motion_x:
-        for x in range(abs(mouse_motion_x - mos_rect.x)):
-            mos_rect.x += 1
-    if mos_rect.y > mouse_motion_y:
-        for y in range(abs(mouse_motion_y - mos_rect.y)):
-            mos_rect.y -= 1
-    if mos_rect.y < mouse_motion_y:
-        for y in range(abs(mouse_motion_y - mos_rect.y)):
-
-            mos_rect.y += 1
+        # #move the clown
+    mos_rect.x += mos_dx * mosquito_velocity
+    mos_rect.y += mos_dy * mosquito_velocity
 
 
-    # mos_rect.x += (mouse_motion_x - mos_rect.x) * 1
-    # mos_rect.y += (mouse_motion_y - mos_rect.y) * 1
 
 
-#bounce clown
     if mos_rect.left <= 0 or mos_rect.right >= WINDOW_WIDTH:
         mos_dx = -1*mos_dx
-    if mos_rect.top <= 0 or mos_rect.bottom >= WINDOW_HEIGHT:
-        mos_dy = -1*mos_dy
+
+    if mos_rect.top >= WINDOW_HEIGHT:
+        choice = random.choice([1,2])
+        if choice == 1:
+            mos_rect.x = random.randint(0,WINDOW_WIDTH)
+            mos_rect.y = WINDOW_HEIGHT
+            mos_dy = -1
+        if choice == 2:
+            mos_rect.x = random.randint(0, WINDOW_WIDTH)
+            mos_rect.y = -10
+            mos_dy = 1
+
+
+    if mos_rect.bottom < 0:
+        mos_rect.x = random.randint(0, WINDOW_WIDTH)
+        mos_rect.y = 4
+        mos_dy = +1
+
+
+
+        # if choice == 2:
+        #     mos_rect.x = random.randint(0,WINDOW_WIDTH)
+        #     mos_rect.y = WINDOW_HEIGHT + 10
+        #     mos_dy = 1*mos_dy
+
+
 
     #update HUD
     score_text = font.render("Score: " + str(score), True, BLACK)
     lives_text = font.render("Lives: " + str(player_lives), True, BLACK)
+    if mosquito_bite_mode and pygame.time.get_ticks() >= event_end_time:
+        mosquito_bite_mode = False
+        normal_mode = True
 
     if player_lives == 0:
         surface_display.blit(game_over_text, game_over_rect)
