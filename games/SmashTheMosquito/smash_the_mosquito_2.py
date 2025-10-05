@@ -1,4 +1,6 @@
 import random
+import mosquito_funcs as ms
+from mosquito_funcs import Insecticide
 
 import pygame
 from pygame import MOUSEMOTION
@@ -72,10 +74,14 @@ continue_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 64)
 
 mos_image = pygame.image.load('../assets/mosquito.png')
 mos_rect = mos_image.get_rect()
-mos_rect.center = ((WINDOW_WIDTH//2, WINDOW_HEIGHT//2))
+mos_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
 
 mouse_motion_x = 0
 mouse_motion_y = 0
+
+insecticide = Insecticide()
+all_sprites = pygame.sprite.Group((insecticide))
+
 
 
 
@@ -92,14 +98,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-
+        if event.type == pygame.MOUSEBUTTONUP:
+            insecticide.un_swat()
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x = event.pos[0]
             mouse_y= event.pos[1]
         #here the clown was clicked
             print(f' mouse rec {mos_rect.x}')
             print(f' mouse rec {mos_rect.y}')
-            if mos_rect.collidepoint(mouse_x,mouse_y):
+            if insecticide.swat(insecticide):
+            #if mos_rect.collidepoint(mouse_x,mouse_y):
                 score += 1
                 mosquito_velocity += MOSQUITO_ACCELERATION
 
@@ -138,13 +146,20 @@ while running:
     if mos_rect.top >= WINDOW_HEIGHT:
         choice = random.choice([1,2])
         if choice == 1:
-            mos_rect.x = random.randint(0,WINDOW_WIDTH)
-            mos_rect.y = WINDOW_HEIGHT
+            ms.north_south_border_rules(mos_rect,WINDOW_HEIGHT,0,WINDOW_WIDTH)
             mos_dy = -1
         if choice == 2:
-            mos_rect.x = random.randint(0, WINDOW_WIDTH)
-            mos_rect.y = -10
+            ms.north_south_border_bounce(mos_rect,-10,0, WINDOW_WIDTH)
             mos_dy = 1
+    if mos_rect.top <= 0:
+        choice = random.choice([1, 2])
+        if choice == 1:
+            ms.north_south_border_rules(mos_rect, 0, 0, WINDOW_WIDTH)
+            mos_dy = 1
+        if choice == 2:
+            ms.north_south_border_rules(mos_rect, 610,0,WINDOW_WIDTH)
+            mos_dy = -1
+
 
 
     if mos_rect.bottom < 0:
@@ -204,8 +219,8 @@ while running:
 
     #Display Mosquito
     surface_display.blit(mos_image,mos_rect)
-
-
+    all_sprites.update()
+    all_sprites.draw(surface_display)
 
     pygame.display.flip()
     clock.tick(FPS)
