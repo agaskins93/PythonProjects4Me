@@ -3,6 +3,14 @@ import  random
 
 import pygame.sprite
 
+WINDOW_WIDTH = 945
+WINDOW_HEIGHT = 600
+MOSQUITO_STARTING_VELOCITY = 3
+mosquito_velocity = MOSQUITO_STARTING_VELOCITY
+mos_dx = random.choice([-1,1])
+mos_dy = random.choice([-1,1])
+
+
 
 def north_south_border_rules(object_name, height, start_width, end_width):
     object_name.x = random.randint(start_width,end_width)
@@ -59,3 +67,31 @@ class Insecticide(pygame.sprite.Sprite):
 
     def un_swat(self):
         self.spray = False
+
+class Mosquito(pygame.sprite.Sprite):
+    """ moves the mosquito acroos the screen randomly for the user to click on"""
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_image("mosquito.png",-1,4)
+        screen = pygame.display.get_surface()
+        self.area = screen.get_rect()
+        self.rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
+        self.sprayed = False
+
+    def update(self):
+        if self.sprayed:
+            self._swatted()
+        else:
+            self._fly()
+    def _fly(self):
+        """ Allows the fly to  fly by on the screen form random postions"""
+
+        self.rect.x += mos_dx * mosquito_velocity
+        self.rect.y += mos_dy * mosquito_velocity
+    def _sprayed(self):
+        """will cause the mosquito to drop to the botoom of the screen"""
+        self.sprayed = True
+        self.original = self.image
+
+

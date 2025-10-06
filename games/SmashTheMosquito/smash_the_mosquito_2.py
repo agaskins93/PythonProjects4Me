@@ -1,6 +1,6 @@
 import random
 import mosquito_funcs as ms
-from mosquito_funcs import Insecticide
+from mosquito_funcs import Insecticide, Mosquito
 
 import pygame
 from pygame import MOUSEMOTION
@@ -80,7 +80,8 @@ mouse_motion_x = 0
 mouse_motion_y = 0
 
 insecticide = Insecticide()
-all_sprites = pygame.sprite.Group((insecticide))
+mosquito = Mosquito()
+all_sprites = pygame.sprite.Group((insecticide, mosquito))
 
 
 
@@ -90,7 +91,7 @@ all_sprites = pygame.sprite.Group((insecticide))
 
 
 
-
+dropped = False
 #pygame.mixer.music.play(-1,0.0)
 running = True
 while running:
@@ -106,24 +107,27 @@ while running:
         #here the clown was clicked
             print(f' mouse rec {mos_rect.x}')
             print(f' mouse rec {mos_rect.y}')
-            if insecticide.swat(insecticide):
-            #if mos_rect.collidepoint(mouse_x,mouse_y):
+            #if insecticide.swat(mosquito):
+            if mos_rect.collidepoint(mouse_x,mouse_y):
                 score += 1
-                mosquito_velocity += MOSQUITO_ACCELERATION
+                #mosquito_velocity += MOSQUITO_ACCELERATION
 
                 #move clown in new direction
-                mos_dx = random.choice([-1,1])
-                mos_dy = random.choice([-1,1])
+                # mos_dx = random.choice([-1,1])
+                # mos_dy = random.choice([-1,1])
+                mos_rect.x = mouse_x
+                mos_rect.y = mouse_y
+                dropped = True
 
                 # if mos_dx == -1 or mos_dy == -1:
                 #     mos_d,mos_dy = 1,1
                 # if mos_dx == 1 or mos_dy == 1:
                 #     mos_dx,mos_dy = -1,-1
-                prev_dx = mos_dx
-                prev_dy = mos_dy
-                while(prev_dx == mos_dx and prev_dy == mos_dy):
-                    mos_dx = random.choice([-1,1])
-                    mos_dx = random.choice([-1,1])
+                # prev_dx = mos_dx
+                # prev_dy = mos_dy
+                # while(prev_dx == mos_dx and prev_dy == mos_dy):
+                #     mos_dx = random.choice([-1,1])
+                #     mos_dx = random.choice([-1,1])
             else:
                 player_lives -= 1
 
@@ -133,9 +137,27 @@ while running:
 
     #able to get the score decresing wwhen the mosuquito tries to bite you
 
-        # #move the clown
-    mos_rect.x += mos_dx * mosquito_velocity
-    mos_rect.y += mos_dy * mosquito_velocity
+        # #move the clo
+    print("back here")
+    if dropped:
+
+        # rotated_mos_image = pygame.transform.rotate(mos_image, 180)
+        # rotated_mos_image_rect = rotated_mos_image.get_rect(center=mos_rect.center)
+        # rotated_mos_image_rect.x = mos_rect.x
+        # rotated_mos_image_rect.y = mos_rect.y
+        #
+        # surface_display.blit(rotated_mos_image, rotated_mos_image_rect)
+        # pygame.display.flip()
+        mos_rect.y += mosquito_velocity
+
+
+        if mos_rect.y > WINDOW_HEIGHT:
+            dropped = False
+    else:
+        mos_rect.x += mos_dx * mosquito_velocity
+        mos_rect.y += mos_dy * mosquito_velocity
+
+
 
 
 
