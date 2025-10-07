@@ -63,7 +63,7 @@ class Insecticide(pygame.sprite.Sprite):
             self.spray = True
             hitbox = self.rect.inflate(-5,-5)
             return hitbox.colliderect(target.rect)
-
+        return None
 
     def un_swat(self):
         self.spray = False
@@ -73,25 +73,54 @@ class Mosquito(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_image("mosquito.png",-1,4)
+        self.image, self.rect = load_image("mosquito.png",-1,1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
         self.sprayed = False
+        self.mos_dx = mos_dx
+        self.mos_dy = mos_dy
 
     def update(self):
         if self.sprayed:
-            self._swatted()
+            self._exterminated()
         else:
             self._fly()
     def _fly(self):
         """ Allows the fly to  fly by on the screen form random postions"""
+        # self.mos_dy = random.choice([-1, 1])
+        print('here')
+        self.rect.x += self.mos_dx * mosquito_velocity
+        self.rect.y += self.mos_dy * mosquito_velocity
 
-        self.rect.x += mos_dx * mosquito_velocity
-        self.rect.y += mos_dy * mosquito_velocity
-    def _sprayed(self):
+        if self.rect.left <= 0 or self.rect.right >= WINDOW_WIDTH:
+            self.mos_dx = -1 * self.mos_dx
+
+
+
+        if self.rect.top >= WINDOW_HEIGHT:
+            choice = random.choice([1, 2])
+            if choice == 1:
+                north_south_border_rules(self.rect, WINDOW_HEIGHT, 0, WINDOW_WIDTH)
+                self.mos_dy = -1
+            if choice == 2:
+                north_south_border_bounce(self.rect, -10, 0, WINDOW_WIDTH)
+                self.mos_dy = 1
+        if self.rect.top <= 0:
+            choice = random.choice([1, 2])
+            if choice == 1:
+                north_south_border_rules(self.rect, 0, 0, WINDOW_WIDTH)
+                self.mos_dy = 1
+            if choice == 2:
+                north_south_border_rules(self.rect, 610, 0, WINDOW_WIDTH)
+                self.mos_dy = -1
+
+
+    def _exterminated(self):
         """will cause the mosquito to drop to the botoom of the screen"""
-        self.sprayed = True
-        self.original = self.image
+        self.rect.y += mosquito_velocity
 
+    def caught(self):
+        if not self.sprayed:
+           self.sprayed = True
 
