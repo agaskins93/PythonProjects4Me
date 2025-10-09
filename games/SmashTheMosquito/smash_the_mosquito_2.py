@@ -1,11 +1,9 @@
 import random
 import mosquito_funcs as ms
-from mosquito_funcs import Insecticide, Mosquito
+from mosquito_funcs import Insecticide, Mosquito, Fly
 import os
 
-
 import pygame
-from pygame import MOUSEMOTION
 
 pygame.init()
 
@@ -74,9 +72,7 @@ continue_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 64)
 # background_rect = background_image.get_rect()
 # background_rect.topleft = (0,0)
 
-mos_image = pygame.image.load('../assets/mosquito.png')
-mos_rect = mos_image.get_rect()
-mos_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
+
 
 mouse_motion_x = 0
 mouse_motion_y = 0
@@ -88,9 +84,32 @@ mouse_motion_y = 0
 
 
 insecticide = Insecticide()
-mosquito = Mosquito()
-mosquito2 = Mosquito()
-all_sprites = pygame.sprite.Group((insecticide, mosquito,mosquito2))
+insecticide_sprite = pygame.sprite.GroupSingle(insecticide)
+
+
+mosquito_sprites = pygame.sprite.Group()
+
+for _ in range(3):
+    mosquito = Mosquito()
+    mosquito_sprites.add(mosquito)
+
+
+
+
+
+
+fly1 = Fly()
+fly2 = Fly()
+fly3 = Fly()
+fly4 = Fly()
+fly5 = Fly()
+fly6 = Fly()
+
+
+
+
+
+
 
 
 
@@ -103,96 +122,38 @@ dropped = False
 running = True
 while running:
     for event in pygame.event.get():
+        print('start')
         if event.type == pygame.QUIT:
             running = False
 
         if event.type == pygame.MOUSEBUTTONUP:
             insecticide.un_swat()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_x = event.pos[0]
-            mouse_y= event.pos[1]
-        #here the clown was clicked
-            print(f' mouse rec {mos_rect.x}')
-            print(f' mouse rec {mos_rect.y}')
-            if insecticide.swat(mosquito):
-            #if mos_rect.collidepoint(mouse_x,mouse_y):
-                score += 1
-                #mosquito_velocity += MOSQUITO_ACCELERATION
-                mosquito.caught()
-                #move clown in new direction
-                # mos_dx = random.choice([-1,1])
-                # mos_dy = random.choice([-1,1])
-                mos_rect.x = mouse_x
-                mos_rect.y = mouse_y
-                dropped = True
+            print('calling func')
 
-                # if mos_dx == -1 or mos_dy == -1:
-                #     mos_d,mos_dy = 1,1
-                # if mos_dx == 1 or mos_dy == 1:
-                #     mos_dx,mos_dy = -1,-1
-                # prev_dx = mos_dx
-                # prev_dy = mos_dy
-                # while(prev_dx == mos_dx and prev_dy == mos_dy):
-                #     mos_dx = random.choice([-1,1])
-                #     mos_dx = random.choice([-1,1])
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.sprite.spritecollide(insecticide, mosquito_sprites, dokill=False):
+                collided_enemies = pygame.sprite.spritecollide(insecticide, mosquito_sprites, dokill=False)
+                for mos in collided_enemies:
+                    score += 1
+                    mos.caught()
+                    print('most1 got caught')
             else:
                 player_lives -= 1
-
-
-
-
-
-    #able to get the score decresing wwhen the mosuquito tries to bite you
-
-        # #move the clo
-
-
-
-
-
-
-    if mos_rect.left <= 0 or mos_rect.right >= WINDOW_WIDTH:
-        mos_dx = -1*mos_dx
-
-    if mos_rect.top >= WINDOW_HEIGHT:
-        choice = random.choice([1,2])
-        if choice == 1:
-            ms.north_south_border_rules(mos_rect,WINDOW_HEIGHT,0,WINDOW_WIDTH)
-            mos_dy = -1
-        if choice == 2:
-            ms.north_south_border_bounce(mos_rect,-10,0, WINDOW_WIDTH)
-            mos_dy = 1
-    if mos_rect.top <= 0:
-        choice = random.choice([1, 2])
-        if choice == 1:
-            ms.north_south_border_rules(mos_rect, 0, 0, WINDOW_WIDTH)
-            mos_dy = 1
-        if choice == 2:
-            ms.north_south_border_rules(mos_rect, 610,0,WINDOW_WIDTH)
-            mos_dy = -1
-
-
-
-    if mos_rect.bottom < 0:
-        mos_rect.x = random.randint(0, WINDOW_WIDTH)
-        mos_rect.y = 4
-        mos_dy = +1
-
-
-
-        # if choice == 2:
-        #     mos_rect.x = random.randint(0,WINDOW_WIDTH)
-        #     mos_rect.y = WINDOW_HEIGHT + 10
-        #     mos_dy = 1*mos_dy
-
 
 
     #update HUD
     score_text = font.render("Score: " + str(score), True, BLACK)
     lives_text = font.render("Lives: " + str(player_lives), True, BLACK)
-    if mosquito_bite_mode and pygame.time.get_ticks() >= event_end_time:
-        mosquito_bite_mode = False
-        normal_mode = True
+
+    # if score >= 5:
+    #     one_fly.update()
+    #     one_fly.draw(surface_display)
+    # if score >= 10:
+    #     two_fly.update()
+    #     two_fly.draw(surface_display)
+    # if score >= 15:
+    #     three_fly.update()
+    #     three_fly.draw(surface_display)
 
     if player_lives == 0:
         surface_display.blit(game_over_text, game_over_rect)
@@ -229,9 +190,10 @@ while running:
     surface_display.blit(score_text, score_rect)
 
     #Display Mosquito
-    surface_display.blit(mos_image,mos_rect)
-    all_sprites.update()
-    all_sprites.draw(surface_display)
+    insecticide_sprite.update()
+    insecticide_sprite.draw(surface_display)
+    mosquito_sprites.update()
+    mosquito_sprites.draw(surface_display)
 
     pygame.display.flip()
     clock.tick(FPS)
