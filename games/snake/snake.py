@@ -28,6 +28,8 @@ DARKGREEN = ( 10, 50, 10)
 RED = ( 255 , 0 , 0)
 DARKRED = ( 150, 0 , 0 )
 WHITE = (255, 255, 255)
+ELECTRIC_BLUE = (125, 249, 255)
+ELECTRIC_PURPLE = (191,0,255)
 
 font = pygame.font.SysFont('gabriola', 48)
 
@@ -50,6 +52,14 @@ continue_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 64)
 #Sound
 
 #Images
+magic_apple_start_coord = (300, 300, SNAKE_SIZE, SNAKE_SIZE)
+magic_apple_start_rect = pygame.draw.rect(display_surface,ELECTRIC_BLUE,magic_apple_start_coord)
+
+magic_apple_end_coord = (300, 500, SNAKE_SIZE, SNAKE_SIZE)
+magic_apple_end_rect = pygame.draw.rect(display_surface,ELECTRIC_BLUE,magic_apple_end_coord)
+
+
+
 apple_coord = (500, 500, SNAKE_SIZE, SNAKE_SIZE)
 apple_rect = pygame.draw.rect(display_surface,RED,apple_coord)
 
@@ -59,7 +69,7 @@ head_rect = pygame.draw.rect(display_surface,GREEN,head_coord)
 body_coords = []
 
 class Snake(pygame.sprite.Sprite):
-    """ Moves a fly trap across the screen, following the moust """
+    """ Moves a snacke the screen"""
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) # initializing sprite
@@ -89,25 +99,34 @@ class Snake(pygame.sprite.Sprite):
     def move_forward(self):
         self.body_coords.insert(0, self.head_coord)
         self.body_coords.pop()
-        # update x,y  and make new coordinga
         self.rect.x += self.snake_dx
         self.rect.y += self.snake_dy
         self.head_coord = (self.rect.x, self.rect.y, SNAKE_SIZE, SNAKE_SIZE)
-        # self.body_coords = []
-        # self.size = SNAKE_SIZE
-        # self.head_x = WINDOW_WIDTH // 2
-        # self.head_y = WINDOW_HEIGHT // 2 + 100
-        # self.snake_dx = 0
-        # self.snake_dy = 0
-        # self.grow = False
-    #def update(self):
-        # if self.grow():
-        #     self._grow_body()
-        # else:
-        #     self._move()
+
+        #border limit
+        if self.rect.left < 0 or self.rect.right > WINDOW_HEIGHT or self.rect.top < 0 or self.rect.bottom > WINDOW_HEIGHT or head_coord in body_coords:
+            display_surface.blit(game_over_text, game_over_rect)
+            display_surface.blit(continue_text, continue_rect)
+            pygame.display.update()
+        #border cycle out
+
+        # if self.rect.left < 0:
+        #     self.rect.y += self.snake_dy
+
 
     def grow_body(self):
         self.body_coords.append(self.head_coord)
+
+    def teleport_body(self, portal_end):
+        self.rect.x = portal_end[0]
+        self.rect.y = portal_end[1]
+        self.head_coord = (self.rect.x, self.rect.y, SNAKE_SIZE, SNAKE_SIZE)
+
+    # def dont_cycle_out(self):
+    #     #
+    #     #sdfg
+
+
 
 
     def draw_body(self):
@@ -159,15 +178,6 @@ while running:
 
     snake.move_forward()
 
-     # add the ehad coordinate to the first index of the body coordinate list
-     # this will move the snakes body by one postion in the list
-    # body_coords.insert(0,head_coord)
-    # body_coords.pop()
-    #
-    # #update x,y  and make new coordinga
-    # head_x += snake_dx
-    # head_y += snake_dy
-    # head_coord = (head_x,head_y,SNAKE_SIZE,SNAKE_SIZE)
 
     # check for game over
     if head_rect.left < 0 or head_rect.right > WINDOW_HEIGHT or head_rect.top < 0 or head_rect.bottom > WINDOW_HEIGHT or head_coord in body_coords:
@@ -203,6 +213,11 @@ while running:
 
         snake.grow_body()
 
+    if snake.eat(magic_apple_start_rect):
+        print("made it to teleport loop")
+
+        snake.teleport_body(magic_apple_end_coord)
+
 
 
 
@@ -216,20 +231,22 @@ while running:
 
 
     display_surface.fill(WHITE)
-    #Blit huf
+    #Blit hud
     display_surface.blit(title_text, title_rect)
     display_surface.blit(score_text, score_rect)
 
-    #Display Sprites:
     snake_sprite.update()
     snake_sprite.draw(display_surface)
-    # mosquito_sprites.update()
-    # mosquito_sprites.draw(surface_display)
+
 
     #blit assets
     snake.draw_body()
     head_rect = pygame.draw.rect(display_surface,GREEN, head_coord)
     apple_rect = pygame.draw.rect(display_surface,RED, apple_coord)
+    magic_apple_start_rect = pygame.draw.rect(display_surface,ELECTRIC_BLUE, magic_apple_start_coord)
+    magic_apple_end_rect = pygame.draw.rect(display_surface,ELECTRIC_PURPLE, magic_apple_end_coord)
+
+
 
     pygame.display.flip()
     clock.tick(FPS)
