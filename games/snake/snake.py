@@ -82,6 +82,8 @@ class Snake(pygame.sprite.Sprite):
         self.head_x = WINDOW_WIDTH // 2
         self.head_y = WINDOW_HEIGHT // 2 + 100
         self.body_coords = []
+        self.outter_limits = False
+        self.collision_protection = False
 
     def move_left(self):
         self.snake_dx = -1 * SNAKE_SIZE
@@ -104,15 +106,33 @@ class Snake(pygame.sprite.Sprite):
         self.head_coord = (self.rect.x, self.rect.y, SNAKE_SIZE, SNAKE_SIZE)
 
         #border limit
-        if self.rect.left < 0 or self.rect.right > WINDOW_HEIGHT or self.rect.top < 0 or self.rect.bottom > WINDOW_HEIGHT or head_coord in body_coords:
-            display_surface.blit(game_over_text, game_over_rect)
-            display_surface.blit(continue_text, continue_rect)
-            pygame.display.update()
-        #border cycle out
+        if (self.rect.left < 0 or self.rect.right > WINDOW_HEIGHT or self.rect.top < 0 or self.rect.bottom > WINDOW_HEIGHT or self.head_coord in self.body_coords) and not self.collision_protection:
+            print("here2")
+            self.outter_limits = True
 
-        # if self.rect.left < 0:
-        #     self.rect.y += self.snake_dy
+        elif self.collision_protection or self.head_coord not in self.body_coords:
+                print("here3")
+                if self.rect.left <= 1:
+                    self.rect.move_ip(0,25)
+                    self.move_right()
 
+                if self.rect.right >= WINDOW_WIDTH:
+                    self.rect.move_ip(0, -25)
+                    self.move_left()
+
+                if self.rect.top <= 0:
+                    self.rect.move_ip(-25, 0)
+                    self.move_down()
+
+                if self.rect.bottom >= WINDOW_HEIGHT:
+                    self.rect.move_ip(25, 0)
+                    self.move_up()
+        else:
+                self.outter_limits = True
+                print('here2')
+
+    def reached_outter_limits(self):
+        return self.outter_limits
 
     def grow_body(self):
         self.body_coords.append(self.head_coord)
@@ -122,35 +142,26 @@ class Snake(pygame.sprite.Sprite):
         self.rect.y = portal_end[1]
         self.head_coord = (self.rect.x, self.rect.y, SNAKE_SIZE, SNAKE_SIZE)
 
-    # def dont_cycle_out(self):
-    #     #
-    #     #sdfg
-
-
-
+    def collison_protection(self, shield):
+        self.collision_protection = True
+    def collison_protection_off(self, shield):
+        self.collision_protection = False
 
     def draw_body(self):
         for body in self.body_coords:
             pygame.draw.rect(display_surface, DARKGREEN, body)
 
-
-
-
-
-
-
-    # def move(self):
-    #     body_coords.insert(0, self.head_coord)
-    #     body_coords.pop()
-    #
-    #     # update x,y  and make new coordinga
-    #     self.head_x += snake_dx
-    #     self.head_y += snake_dy
-    #     self.head_coord = (head_x, head_y, SNAKE_SIZE, SNAKE_SIZE)
-    #
     def eat(self, target):
         rect = self.rect
         return rect.colliderect(target)
+    def reset(self):
+        self.rect.x = WINDOW_WIDTH // 2
+        self.rect.y = WINDOW_HEIGHT // 2 + 100
+        self.head_coord = (self.rect.x, self.rect.y, SNAKE_SIZE, SNAKE_SIZE)
+        self.body_coords = []
+
+        self.snake_dx = 0
+        self.snake_dy = 0
     #
     # def un_swat(self):
     #     self.spray = False
@@ -179,26 +190,24 @@ while running:
     snake.move_forward()
 
 
+
+
     # check for game over
-    if head_rect.left < 0 or head_rect.right > WINDOW_HEIGHT or head_rect.top < 0 or head_rect.bottom > WINDOW_HEIGHT or head_coord in body_coords:
+    # if head_rect.left < 0 or head_rect.right > WINDOW_HEIGHT or head_rect.top < 0 or head_rect.bottom > WINDOW_HEIGHT or head_coord in body_coords:
+    if snake.reached_outter_limits():
         display_surface.blit(game_over_text,game_over_rect)
         display_surface.blit(continue_text,continue_rect)
         pygame.display.update()
 
         is_paused = True
+        print(is_paused)
         while is_paused:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     score = 0
-                    head_x = WINDOW_WIDTH//2
-                    head_y = WINDOW_HEIGHT//2 + 100
-                    head_coord = (head_x, head_y, SNAKE_SIZE, SNAKE_SIZE)
-                    body_coords = []
+                    snake.reset()
+                    is_paused = False
 
-                    snake_dx = 0
-                    snake_dy = 0
-
-                    is_paused= False
 
                 if event.type == pygame.QUIT:
                     is_paused = False
