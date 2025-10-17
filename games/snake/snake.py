@@ -52,13 +52,12 @@ continue_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 64)
 #Sound
 
 #Images
-magic_apple_start_coord = (300, 300, SNAKE_SIZE, SNAKE_SIZE)
-magic_apple_start_rect = pygame.draw.rect(display_surface,ELECTRIC_BLUE,magic_apple_start_coord)
-
-magic_apple_end_coord = (300, 500, SNAKE_SIZE, SNAKE_SIZE)
-magic_apple_end_rect = pygame.draw.rect(display_surface,ELECTRIC_BLUE,magic_apple_end_coord)
+magic_apple_start_coord = (random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT), SNAKE_SIZE,
+                                   SNAKE_SIZE)
 
 
+magic_apple_end_coord = (random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT), SNAKE_SIZE,
+                                 SNAKE_SIZE)
 
 apple_coord = (500, 500, SNAKE_SIZE, SNAKE_SIZE)
 apple_rect = pygame.draw.rect(display_surface,RED,apple_coord)
@@ -67,6 +66,15 @@ head_coord = (head_x, head_y, SNAKE_SIZE , SNAKE_SIZE)
 head_rect = pygame.draw.rect(display_surface,GREEN,head_coord)
 
 body_coords = []
+
+#events
+SPAWN_TELEPORT = pygame.USEREVENT + 1
+pygame.time.set_timer(SPAWN_TELEPORT,40000)
+show_teleport = False
+teleport_duration = 0
+
+
+
 
 class Snake(pygame.sprite.Sprite):
     """ Moves a snacke the screen"""
@@ -110,7 +118,7 @@ class Snake(pygame.sprite.Sprite):
             print("here2")
             self.outter_limits = True
 
-        elif self.collision_protection or self.head_coord not in self.body_coords:
+        elif self.collision_protection and self.head_coord not in self.body_coords:
                 print("here3")
                 if self.rect.left <= 1:
                     self.rect.move_ip(0,25)
@@ -127,9 +135,7 @@ class Snake(pygame.sprite.Sprite):
                 if self.rect.bottom >= WINDOW_HEIGHT:
                     self.rect.move_ip(25, 0)
                     self.move_up()
-        else:
-                self.outter_limits = True
-                print('here2')
+
 
     def reached_outter_limits(self):
         return self.outter_limits
@@ -155,6 +161,8 @@ class Snake(pygame.sprite.Sprite):
         rect = self.rect
         return rect.colliderect(target)
     def reset(self):
+        self.outter_limits = False
+
         self.rect.x = WINDOW_WIDTH // 2
         self.rect.y = WINDOW_HEIGHT // 2 + 100
         self.head_coord = (self.rect.x, self.rect.y, SNAKE_SIZE, SNAKE_SIZE)
@@ -186,31 +194,16 @@ while running:
                 snake.move_up()
             if event.key == pygame.K_DOWN:
                 snake.move_down()
+        elif event.type == SPAWN_TELEPORT:
+            duration = random.choice([15000,30000,45000])
+            show_teleport = True
+            teleport_duration = pygame.time.get_ticks() + duration
 
     snake.move_forward()
 
 
-
-
     # check for game over
     # if head_rect.left < 0 or head_rect.right > WINDOW_HEIGHT or head_rect.top < 0 or head_rect.bottom > WINDOW_HEIGHT or head_coord in body_coords:
-    if snake.reached_outter_limits():
-        display_surface.blit(game_over_text,game_over_rect)
-        display_surface.blit(continue_text,continue_rect)
-        pygame.display.update()
-
-        is_paused = True
-        print(is_paused)
-        while is_paused:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    score = 0
-                    snake.reset()
-                    is_paused = False
-
-
-                if event.type == pygame.QUIT:
-                    is_paused = False
 
 
 
@@ -222,10 +215,8 @@ while running:
 
         snake.grow_body()
 
-    if snake.eat(magic_apple_start_rect):
-        print("made it to teleport loop")
 
-        snake.teleport_body(magic_apple_end_coord)
+
 
 
 
@@ -252,10 +243,38 @@ while running:
     snake.draw_body()
     head_rect = pygame.draw.rect(display_surface,GREEN, head_coord)
     apple_rect = pygame.draw.rect(display_surface,RED, apple_coord)
-    magic_apple_start_rect = pygame.draw.rect(display_surface,ELECTRIC_BLUE, magic_apple_start_coord)
-    magic_apple_end_rect = pygame.draw.rect(display_surface,ELECTRIC_PURPLE, magic_apple_end_coord)
 
+    if show_teleport and pygame.time.get_ticks() < teleport_duration:
 
+        magic_apple_start_rect = pygame.draw.rect(display_surface,ELECTRIC_BLUE, magic_apple_start_coord)
+        magic_apple_end_rect = pygame.draw.rect(display_surface,ELECTRIC_PURPLE, magic_apple_end_coord)
+        pygame.display.flip()
+
+        if snake.eat(magic_apple_start_rect):
+            print("made it to teleport loop")
+
+            snake.teleport_body(magic_apple_end_coord)
+
+    if show_teleport and pygame.time.get_ticks() >= teleport_duration:
+        show_teleport = False
+
+    if snake.reached_outter_limits():
+        display_surface.blit(game_over_text, game_over_rect)
+        display_surface.blit(continue_text, continue_rect)
+        pygame.display.update()
+
+        is_paused = True
+        print(is_paused)
+        while is_paused:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    score = 0
+                    snake.reset()
+                    is_paused = False
+
+                if event.type == pygame.QUIT:
+                    is_paused = False
+                    running = False
 
     pygame.display.flip()
     clock.tick(FPS)
