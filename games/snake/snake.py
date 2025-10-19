@@ -30,6 +30,7 @@ DARKRED = ( 150, 0 , 0 )
 WHITE = (255, 255, 255)
 ELECTRIC_BLUE = (125, 249, 255)
 ELECTRIC_PURPLE = (191,0,255)
+HOT_PINK = (255,105,180)
 
 font = pygame.font.SysFont('gabriola', 48)
 
@@ -52,9 +53,11 @@ continue_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 64)
 #Sound
 
 #Images
+
+border_apple_coord = (random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT), SNAKE_SIZE,
+                                   SNAKE_SIZE)
 magic_apple_start_coord = (random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT), SNAKE_SIZE,
                                    SNAKE_SIZE)
-
 
 magic_apple_end_coord = (random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT), SNAKE_SIZE,
                                  SNAKE_SIZE)
@@ -72,6 +75,11 @@ SPAWN_TELEPORT = pygame.USEREVENT + 1
 pygame.time.set_timer(SPAWN_TELEPORT,40000)
 show_teleport = False
 teleport_duration = 0
+
+SPAWN_BORDER_BOUNCE = pygame.USEREVENT + 2
+pygame.time.set_timer(SPAWN_BORDER_BOUNCE,30000)
+show_border_bounce = False
+border_bounce_duration = 0
 
 
 
@@ -115,11 +123,10 @@ class Snake(pygame.sprite.Sprite):
 
         #border limit
         if (self.rect.left < 0 or self.rect.right > WINDOW_HEIGHT or self.rect.top < 0 or self.rect.bottom > WINDOW_HEIGHT or self.head_coord in self.body_coords) and not self.collision_protection:
-            print("here2")
             self.outter_limits = True
 
         elif self.collision_protection and self.head_coord not in self.body_coords:
-                print("here3")
+
                 if self.rect.left <= 1:
                     self.rect.move_ip(0,25)
                     self.move_right()
@@ -148,9 +155,9 @@ class Snake(pygame.sprite.Sprite):
         self.rect.y = portal_end[1]
         self.head_coord = (self.rect.x, self.rect.y, SNAKE_SIZE, SNAKE_SIZE)
 
-    def collison_protection(self, shield):
+    def collison_protection_on(self):
         self.collision_protection = True
-    def collison_protection_off(self, shield):
+    def collison_protection_off(self):
         self.collision_protection = False
 
     def draw_body(self):
@@ -198,6 +205,10 @@ while running:
             duration = random.choice([15000,30000,45000])
             show_teleport = True
             teleport_duration = pygame.time.get_ticks() + duration
+        elif event.type == SPAWN_BORDER_BOUNCE:
+            duration_bb = random.choice([20000, 60000, 20000])
+            show_border_bounce = True
+            border_bounce_duration = pygame.time.get_ticks() + duration_bb
 
     snake.move_forward()
 
@@ -251,12 +262,24 @@ while running:
         pygame.display.flip()
 
         if snake.eat(magic_apple_start_rect):
-            print("made it to teleport loop")
 
             snake.teleport_body(magic_apple_end_coord)
 
     if show_teleport and pygame.time.get_ticks() >= teleport_duration:
         show_teleport = False
+
+    if show_border_bounce and pygame.time.get_ticks() < border_bounce_duration:
+
+        border_apple_rect = pygame.draw.rect(display_surface,HOT_PINK, border_apple_coord)
+        pygame.display.flip()
+
+        if snake.eat(border_apple_rect):
+            snake.collison_protection_on()
+
+    if show_border_bounce and pygame.time.get_ticks() >= border_bounce_duration:
+        show_border_bounce = False
+        snake.collison_protection_off()
+
 
     if snake.reached_outter_limits():
         display_surface.blit(game_over_text, game_over_rect)
@@ -264,7 +287,6 @@ while running:
         pygame.display.update()
 
         is_paused = True
-        print(is_paused)
         while is_paused:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
